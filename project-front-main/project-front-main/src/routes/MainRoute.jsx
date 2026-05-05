@@ -30,7 +30,7 @@ export const MainRoute = () => {
       <Route path="/proveedores" element={<RequireAuth><ProveedorRoute /></RequireAuth>} />
       <Route path="/dashboard" element={<RequireAuth><DashboardRoute /></RequireAuth>} />
       <Route path="/inventario" element={<RequireAuth><InventarioRoute /></RequireAuth>} />
-      <Route path="/register" element={<RequireAuth><Register /></RequireAuth>} />
+      <Route path="/register" element={<Register />} />
       <Route path="/compras" element={<RequireAuth><ComprasRoute /></RequireAuth>} />
       <Route path="/compras/:id" element={<RequireAuth><DetalleCompraRoute /></RequireAuth>} />
 

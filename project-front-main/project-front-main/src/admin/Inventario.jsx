@@ -165,7 +165,7 @@ export function Inventario() {
 
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 fade-in">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Gestión de Inventarios</h3>
         <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>

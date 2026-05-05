@@ -15,8 +15,9 @@ services:
     networks:
       - seged_net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -padmin123"]
+      interval: 10s
+      timeout: 5s
       retries: 10
 
   mongodb:
@@ -40,8 +41,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: [ "redis-server", "--appendonly", "yes" ]
-    networks: [ seged_net ]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - seged_net
 
   ventas-backend:
     build:
@@ -92,12 +96,12 @@ services:
     container_name: seged_frontend
     restart: unless-stopped
     ports:
-      - "0.0.0.0:3000:5173"
+      - "3000:5173"
     volumes:
       - ./project-front-main/project-front-main:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
     depends_on:
       - backend
     networks:
@@ -107,7 +111,7 @@ services:
 volumes:
   mongo_data:
   mysql_data:
-  redis-data:
+  redis_data:
 
 networks:
   seged_net:

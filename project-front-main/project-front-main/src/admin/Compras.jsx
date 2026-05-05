@@ -396,7 +396,7 @@ export function Compras() {
 
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 fade-in">
       <h3 className="mb-3">Gestión de Compras</h3>
 
 

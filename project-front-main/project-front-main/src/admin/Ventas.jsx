@@ -486,7 +486,7 @@ export function Ventas() {
 
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 fade-in">
       <h3 className="mb-3">Gestión de Ventas</h3>
 
 
