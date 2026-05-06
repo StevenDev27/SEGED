@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useVentas } from "../hooks/useVentas";
 import { useDetalleVentas } from "../hooks/useDetalleVentas";
 import { useClientes } from "../hooks/useClientes";
@@ -47,6 +48,7 @@ export function Ventas() {
 
 
   const [lineas, setLineas] = useState([]);
+  const [showFormModal, setShowFormModal] = useState(false);
 
 
   const ventasFiltradas = useMemo(() => {
@@ -266,6 +268,7 @@ export function Ventas() {
         descuentoValor: 0,
       });
       setLineas([]);
+      setShowFormModal(false);
     } catch (err) {
       console.error(err);
       alert(err.message || "No se pudo registrar la venta.");
@@ -487,186 +490,212 @@ export function Ventas() {
 
   return (
     <div className="container mt-4 fade-in">
-      <h3 className="mb-3">Gestión de Ventas</h3>
-
-
-      <div className="card mb-4 shadow">
-        <div className="card-header bg-dark text-white">
-          <h5 className="mb-0">Nueva Venta</h5>
-        </div>
-        <div className="card-body">
-          <form onSubmit={onSubmitVenta}>
-            <div className="row g-3 mb-3">
-              <div className="col-md-4">
-                <label className="form-label">Cliente</label>
-                <select
-                  name="clienteId"
-                  className="form-select"
-                  value={ventaForm.clienteId}
-                  onChange={onChangeVenta}
-                  required
-                >
-                  <option value="">Seleccione un cliente</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} — {c.cedula}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-
-              <div className="col-md-4">
-                <label className="form-label">Número de venta</label>
-                <input
-                  name="numero"
-                  className="form-control"
-                  value={ventaForm.numero}
-                  onChange={onChangeVenta}
-                  placeholder="Opcional, se genera si lo dejas vacío"
-                />
-              </div>
-
-
-              <div className="col-md-4">
-                <label className="form-label">Método de pago</label>
-                <select
-                  name="metodoPago"
-                  className="form-select"
-                  value={ventaForm.metodoPago}
-                  onChange={onChangeVenta}
-                >
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Tarjeta">Tarjeta</option>
-                  <option value="Transferencia">Transferencia</option>
-                </select>
-              </div>
-            </div>
-
-
-            <h6>Detalle de productos</h6>
-            <div className="row g-2 align-items-end mb-2">
-              <div className="col-md-3">
-                <label className="form-label">Producto</label>
-                <select
-                  name="productoId"
-                  className="form-select"
-                  value={lineForm.productoId}
-                  onChange={onChangeLinea}
-                  required
-                >
-                  <option value="">Seleccione un producto</option>
-                  {productos.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} — ${Math.round(p.precioUnitario)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Cantidad</label>
-                <input
-                  type="number"
-                  name="cantidad"
-                  className="form-control"
-                  min={1}
-                  value={lineForm.cantidad}
-                  onChange={onChangeLinea}
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Precio Unit.</label>
-                <input
-                  type="number"
-                  name="precioUnitario"
-                  className="form-control"
-                  min={0}
-                  step="1"
-                  value={lineForm.precioUnitario}
-                  onChange={onChangeLinea}
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Desc. tipo</label>
-                <input
-                  name="descuentoTipo"
-                  className="form-control"
-                  value={lineForm.descuentoTipo}
-                  onChange={onChangeLinea}
-                  placeholder="% o fijo"
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Desc. valor</label>
-                <input
-                  type="number"
-                  name="descuentoValor"
-                  className="form-control"
-                  min={0}
-                  step="1"
-                  value={lineForm.descuentoValor}
-                  onChange={onChangeLinea}
-                />
-              </div>
-              <div className="col-md-1">
-                <button type="button" className="btn btn-success w-100" onClick={addLinea}>
-                  +
-                </button>
-              </div>
-            </div>
-
-
-            {lineas.length > 0 && (
-              <div className="table-responsive mb-3">
-                <table className="table table-sm table-striped">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Cant.</th>
-                      <th>P.Unit</th>
-                      <th>Desc.</th>
-                      <th>Subtotal</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lineas.map((l) => (
-                      <tr key={l.id}>
-                        <td>{l.productoNombre || l.productoId}</td>
-                        <td>{l.cantidad}</td>
-                        <td>{Math.round(l.precioUnitario)}</td>
-                        <td>{Math.round(l.descuentoValor)}</td>
-                        <td>{Math.round(l.subtotal)}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-danger"
-                            onClick={() => removeLineaLocal(l.id)}
-                          >
-                            X
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <strong>Subtotal:</strong> {Math.round(totales.subTotal)} &nbsp;
-                <strong>Impuestos:</strong> {Math.round(totales.impuestos)} &nbsp;
-                <strong>Total:</strong> {Math.round(totales.total)}
-              </div>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? "Guardando..." : "Registrar Venta"}
-              </button>
-            </div>
-          </form>
-        </div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="mb-0">Gestión de Ventas</h3>
+        <button className="btn btn-primary btn-sm" onClick={() => setShowFormModal(true)}>
+          <i className="bi bi-plus-circle"></i> Nueva Venta
+        </button>
       </div>
+
+
+      {showFormModal && createPortal(
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="modal-dialog modal-xl modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-dark text-white">
+                <h5 className="modal-title">Nueva Venta</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowFormModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={onSubmitVenta}>
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-4">
+                      <label className="form-label">Cliente</label>
+                      <select
+                        name="clienteId"
+                        className="form-select"
+                        value={ventaForm.clienteId}
+                        onChange={onChangeVenta}
+                        required
+                      >
+                        <option value="">Seleccione un cliente</option>
+                        {clientes.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.nombre} — {c.cedula}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+
+                    <div className="col-md-4">
+                      <label className="form-label">Número de venta</label>
+                      <input
+                        name="numero"
+                        className="form-control"
+                        value={ventaForm.numero}
+                        onChange={onChangeVenta}
+                        placeholder="Opcional, se genera si lo dejas vacío"
+                      />
+                    </div>
+
+
+                    <div className="col-md-4">
+                      <label className="form-label">Método de pago</label>
+                      <select
+                        name="metodoPago"
+                        className="form-select"
+                        value={ventaForm.metodoPago}
+                        onChange={onChangeVenta}
+                      >
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
+                      </select>
+                    </div>
+                  </div>
+
+
+                  <h6>Detalle de productos</h6>
+                  <div className="row g-2 align-items-end mb-2">
+                    <div className="col-md-3">
+                      <label className="form-label">Producto</label>
+                      <select
+                        name="productoId"
+                        className="form-select"
+                        value={lineForm.productoId}
+                        onChange={onChangeLinea}
+                        required={lineas.length === 0}
+                      >
+                        <option value="">Seleccione un producto</option>
+                        {productos.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.nombre} — ${Math.round(p.precioUnitario)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Cantidad</label>
+                      <input
+                        type="number"
+                        name="cantidad"
+                        className="form-control"
+                        min={1}
+                        value={lineForm.cantidad}
+                        onChange={onChangeLinea}
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Precio Unit.</label>
+                      <input
+                        type="number"
+                        name="precioUnitario"
+                        className="form-control"
+                        min={0}
+                        step="1"
+                        value={lineForm.precioUnitario}
+                        onChange={onChangeLinea}
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Desc. tipo</label>
+                      <input
+                        name="descuentoTipo"
+                        className="form-control"
+                        value={lineForm.descuentoTipo}
+                        onChange={onChangeLinea}
+                        placeholder="% o fijo"
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Desc. valor</label>
+                      <input
+                        type="number"
+                        name="descuentoValor"
+                        className="form-control"
+                        min={0}
+                        step="1"
+                        value={lineForm.descuentoValor}
+                        onChange={onChangeLinea}
+                      />
+                    </div>
+                    <div className="col-md-1">
+                      <button type="button" className="btn btn-success w-100" onClick={addLinea}>
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+
+                  {lineas.length > 0 && (
+                    <div className="table-responsive mb-3">
+                      <table className="table table-sm table-striped">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>P.Unit</th>
+                            <th>Desc.</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {lineas.map((l) => (
+                            <tr key={l.id}>
+                              <td>{l.productoNombre || l.productoId}</td>
+                              <td>{l.cantidad}</td>
+                              <td>{Math.round(l.precioUnitario)}</td>
+                              <td>{Math.round(l.descuentoValor)}</td>
+                              <td>{Math.round(l.subtotal)}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-danger"
+                                  onClick={() => removeLineaLocal(l.id)}
+                                >
+                                  X
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+
+                  <div className="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                      <strong>Subtotal:</strong> {Math.round(totales.subTotal)} &nbsp;
+                      <strong>Impuestos:</strong> {Math.round(totales.impuestos)} &nbsp;
+                      <strong>Total:</strong> {Math.round(totales.total)}
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button type="button" className="btn btn-secondary" onClick={() => setShowFormModal(false)}>
+                        Cancelar
+                      </button>
+                      <button type="submit" className="btn btn-primary" disabled={loading}>
+                        {loading ? "Guardando..." : "Registrar Venta"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
 
       <div className="card shadow">

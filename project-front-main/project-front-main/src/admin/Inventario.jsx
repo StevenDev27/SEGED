@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useInventarios } from "../hooks/useInventarios";
 import api from "../api/client";
 
@@ -24,6 +25,7 @@ export function Inventario() {
 
 
   const [showModal, setShowModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
   const [selectedInventario, setSelectedInventario] = useState(null);
   const [movimientoData, setMovimientoData] = useState({
     tipoMovimiento: "entrada",
@@ -109,6 +111,7 @@ export function Inventario() {
       alert(err.message || "Error al crear inventario");
     } finally {
       setSubmitting(false);
+      setShowFormModal(false);
     }
   };
 
@@ -168,131 +171,155 @@ export function Inventario() {
     <div className="container mt-4 fade-in">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Gestión de Inventarios</h3>
-        <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
-          Recargar
-        </button>
-      </div>
-
-
-      <div className="card mb-4 shadow">
-        <div className="card-header bg-dark text-white">
-          <h5 className="mb-0">Nuevo Inventario</h5>
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="row g-3">
-              <div className="col-md-3">
-                <label className="form-label">Producto *</label>
-                <select
-                  className="form-select"
-                  name="productoId"
-                  value={formData.productoId}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  required
-                >
-                  <option value="">Seleccione producto</option>
-                  {productos.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-3">
-                <label className="form-label">Categoría</label>
-                <select
-                  className="form-select"
-                  name="categoriaId"
-                  value={formData.categoriaId}
-                  onChange={handleChange}
-                  disabled={submitting}
-                >
-                  <option value="">Sin categoría</option>
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Stock Actual *</label>
-                <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  name="stockActual"
-                  className="form-control"
-                  value={formData.stockActual}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  required
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Stock Mínimo</label>
-                <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  name="stockMinimo"
-                  className="form-control"
-                  value={formData.stockMinimo}
-                  onChange={handleChange}
-                  disabled={submitting}
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Stock Máximo</label>
-                <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  name="stockMaximo"
-                  className="form-control"
-                  value={formData.stockMaximo}
-                  onChange={handleChange}
-                  disabled={submitting}
-                />
-              </div>
-            </div>
-
-
-            <div className="row g-3 mt-2">
-              <div className="col-md-6">
-                <label className="form-label">Almacén</label>
-                <input
-                  type="text"
-                  name="almacen"
-                  className="form-control"
-                  value={formData.almacen}
-                  onChange={handleChange}
-                  disabled={submitting}
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Pasillo</label>
-                <input
-                  type="text"
-                  name="pasillo"
-                  className="form-control"
-                  value={formData.pasillo}
-                  onChange={handleChange}
-                  disabled={submitting}
-                />
-              </div>
-            </div>
-
-
-            <div className="mt-3 d-flex justify-content-end">
-              <button type="submit" className="btn btn-success" disabled={submitting}>
-                {submitting ? "Guardando..." : "Guardar Inventario"}
-              </button>
-            </div>
-          </form>
+        <div>
+          <button className="btn btn-primary btn-sm me-2" onClick={() => setShowFormModal(true)}>
+            <i className="bi bi-plus-circle"></i> Nuevo Inventario
+          </button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
+            Recargar
+          </button>
         </div>
       </div>
+
+
+      {showFormModal && createPortal(
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-dark text-white">
+                <h5 className="modal-title">Nuevo Inventario</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowFormModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleSubmit} noValidate>
+                  <div className="row g-3">
+                    <div className="col-md-3">
+                      <label className="form-label">Producto *</label>
+                      <select
+                        className="form-select"
+                        name="productoId"
+                        value={formData.productoId}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
+                      >
+                        <option value="">Seleccione producto</option>
+                        {productos.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-3">
+                      <label className="form-label">Categoría</label>
+                      <select
+                        className="form-select"
+                        name="categoriaId"
+                        value={formData.categoriaId}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      >
+                        <option value="">Sin categoría</option>
+                        {categorias.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Stock Actual *</label>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        name="stockActual"
+                        className="form-control"
+                        value={formData.stockActual}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Stock Mínimo</label>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        name="stockMinimo"
+                        className="form-control"
+                        value={formData.stockMinimo}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Stock Máximo</label>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        name="stockMaximo"
+                        className="form-control"
+                        value={formData.stockMaximo}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                  </div>
+
+
+                  <div className="row g-3 mt-2">
+                    <div className="col-md-6">
+                      <label className="form-label">Almacén</label>
+                      <input
+                        type="text"
+                        name="almacen"
+                        className="form-control"
+                        value={formData.almacen}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Pasillo</label>
+                      <input
+                        type="text"
+                        name="pasillo"
+                        className="form-control"
+                        value={formData.pasillo}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                  </div>
+
+
+                  <div className="mt-4 d-flex justify-content-end">
+                    <button type="button" className="btn btn-secondary me-2" onClick={() => setShowFormModal(false)}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="btn btn-success" disabled={submitting}>
+                      {submitting ? "Guardando..." : "Guardar Inventario"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -333,8 +360,8 @@ export function Inventario() {
                             inv.stockActual < inv.stockMinimo
                               ? "badge bg-danger"
                               : inv.stockActual > inv.stockMaximo
-                              ? "badge bg-warning text-dark"
-                              : "badge bg-success"
+                                ? "badge bg-warning text-dark"
+                                : "badge bg-success"
                           }
                         >
                           {Math.round(inv.stockActual)}
@@ -368,11 +395,11 @@ export function Inventario() {
       </div>
 
 
-      {showModal && (
+      {showModal && createPortal(
         <div
           className="modal show d-block"
           tabIndex="-1"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
         >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
@@ -483,7 +510,8 @@ export function Inventario() {
               </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

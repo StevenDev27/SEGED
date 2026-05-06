@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useCategoria } from "../hooks/useCategoria";
 
 export function Categoria() {
@@ -10,6 +11,7 @@ export function Categoria() {
     fechaCreacion: new Date().toISOString().split("T")[0],
   });
   const [submitting, setSubmitting] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
 
   const hasItems = useMemo(() => (items?.length ?? 0) > 0, [items]);
 
@@ -28,6 +30,7 @@ export function Categoria() {
         descripcion: "",
         fechaCreacion: new Date().toISOString().split("T")[0],
       });
+      setShowFormModal(false);
     } catch (err) {
       console.error(err);
     } finally {
@@ -52,67 +55,93 @@ export function Categoria() {
         <div className="col-md-8 offset-md-2">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h3 className="mb-0">Gestión de Categorías</h3>
-            <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
-              Recargar
-            </button>
-          </div>
-
-          <div className="card shadow">
-            <div className="card-header bg-dark text-white">
-              <h5 className="mb-0">Crear Categoría</h5>
-            </div>
-            <div className="card-body">
-              <form onSubmit={handleSubmit} noValidate>
-                <div className="mb-3">
-                  <label htmlFor="nombre" className="form-label">Nombre</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    placeholder="Ingrese el nombre de la categoría"
-                    required
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="descripcion" className="form-label">Descripción</label>
-                  <textarea
-                    className="form-control"
-                    id="descripcion"
-                    name="descripcion"
-                    rows="3"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    placeholder="Ingrese la descripción"
-                    required
-                    disabled={submitting}
-                  ></textarea>
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="fechaCreacion" className="form-label">Fecha de Creación</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="fechaCreacion"
-                    name="fechaCreacion"
-                    value={formData.fechaCreacion}
-                    onChange={handleChange}
-                    required
-                    disabled={submitting}
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-dark w-100" disabled={submitting}>
-                  <i className="bi bi-plus-circle"></i> {submitting ? "Creando..." : "Crear Categoría"}
-                </button>
-              </form>
+            <div>
+              <button className="btn btn-primary btn-sm me-2" onClick={() => setShowFormModal(true)}>
+                <i className="bi bi-plus-circle"></i> Nueva Categoría
+              </button>
+              <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
+                Recargar
+              </button>
             </div>
           </div>
+
+          {showFormModal && createPortal(
+            <div
+              className="modal show d-block"
+              tabIndex="-1"
+              style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+            >
+              <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header bg-dark text-white">
+                    <h5 className="modal-title">Crear Categoría</h5>
+                    <button
+                      type="button"
+                      className="btn-close btn-close-white"
+                      onClick={() => setShowFormModal(false)}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <form onSubmit={handleSubmit} noValidate>
+                      <div className="mb-3">
+                        <label htmlFor="nombre" className="form-label">Nombre</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="nombre"
+                          name="nombre"
+                          value={formData.nombre}
+                          onChange={handleChange}
+                          placeholder="Ingrese el nombre de la categoría"
+                          required
+                          disabled={submitting}
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label htmlFor="descripcion" className="form-label">Descripción</label>
+                        <textarea
+                          className="form-control"
+                          id="descripcion"
+                          name="descripcion"
+                          rows="3"
+                          value={formData.descripcion}
+                          onChange={handleChange}
+                          placeholder="Ingrese la descripción"
+                          required
+                          disabled={submitting}
+                        ></textarea>
+                      </div>
+
+                      <div className="mb-3">
+                        <label htmlFor="fechaCreacion" className="form-label">Fecha de Creación</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          id="fechaCreacion"
+                          name="fechaCreacion"
+                          value={formData.fechaCreacion}
+                          onChange={handleChange}
+                          required
+                          disabled={submitting}
+                        />
+                      </div>
+
+                      <div className="d-flex justify-content-end mt-4">
+                        <button type="button" className="btn btn-secondary me-2" onClick={() => setShowFormModal(false)}>
+                          Cancelar
+                        </button>
+                        <button type="submit" className="btn btn-primary" disabled={submitting}>
+                          <i className="bi bi-plus-circle"></i> {submitting ? "Creando..." : "Crear Categoría"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
 
           {error && (
             <div className="alert alert-danger mt-3" role="alert">

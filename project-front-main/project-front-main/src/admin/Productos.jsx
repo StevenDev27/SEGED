@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useProductos } from "../hooks/useProductos";
 import api from "../api/client";
 
@@ -15,6 +16,7 @@ export function Productos() {
     categoriaId: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
 
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export function Productos() {
         categoriaId: formData.categoriaId || null,
       });
       setFormData({ nombre: "", descripcion: "", precioUnitario: "", categoriaId: "" });
+      setShowFormModal(false);
     } catch (err) {
       alert(err.message || "Error al crear producto");
     } finally {
@@ -78,84 +81,108 @@ export function Productos() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Gestión de Productos</h3>
-        <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
-          Recargar
-        </button>
-      </div>
-
-
-      <div className="card mb-4 shadow">
-        <div className="card-header bg-dark text-white">
-          <h5 className="mb-0">Nuevo Producto</h5>
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="row g-3">
-              <div className="col-md-4">
-                <label className="form-label">Nombre</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  className="form-control"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  required
-                />
-              </div>
-              <div className="col-md-4">
-                <label className="form-label">Descripción</label>
-                <input
-                  type="text"
-                  name="descripcion"
-                  className="form-control"
-                  value={formData.descripcion}
-                  onChange={handleChange}
-                  disabled={submitting}
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Precio Unitario</label>
-                <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  name="precioUnitario"
-                  className="form-control"
-                  value={formData.precioUnitario}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  required
-                />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label">Categoría</label>
-                <select
-                  className="form-select"
-                  name="categoriaId"
-                  value={formData.categoriaId}
-                  onChange={handleChange}
-                  disabled={submitting}
-                >
-                  <option value="">Sin categoría</option>
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-
-            <div className="mt-3 d-flex justify-content-end">
-              <button type="submit" className="btn btn-success" disabled={submitting}>
-                {submitting ? "Guardando..." : "Guardar Producto"}
-              </button>
-            </div>
-          </form>
+        <div>
+          <button className="btn btn-primary btn-sm me-2" onClick={() => setShowFormModal(true)}>
+            <i className="bi bi-plus-circle"></i> Nuevo Producto
+          </button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={fetchAll} disabled={loading}>
+            Recargar
+          </button>
         </div>
       </div>
+
+
+      {showFormModal && createPortal(
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-dark text-white">
+                <h5 className="modal-title">Nuevo Producto</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowFormModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleSubmit} noValidate>
+                  <div className="row g-3">
+                    <div className="col-md-4">
+                      <label className="form-label">Nombre</label>
+                      <input
+                        type="text"
+                        name="nombre"
+                        className="form-control"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">Descripción</label>
+                      <input
+                        type="text"
+                        name="descripcion"
+                        className="form-control"
+                        value={formData.descripcion}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Precio Unitario</label>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        name="precioUnitario"
+                        className="form-control"
+                        value={formData.precioUnitario}
+                        onChange={handleChange}
+                        disabled={submitting}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <label className="form-label">Categoría</label>
+                      <select
+                        className="form-select"
+                        name="categoriaId"
+                        value={formData.categoriaId}
+                        onChange={handleChange}
+                        disabled={submitting}
+                      >
+                        <option value="">Sin categoría</option>
+                        {categorias.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+
+                  <div className="mt-4 d-flex justify-content-end gap-2">
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowFormModal(false)}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="btn btn-success" disabled={submitting}>
+                      {submitting ? "Guardando..." : "Guardar Producto"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
 
       {error && (
