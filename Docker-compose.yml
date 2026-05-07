@@ -68,7 +68,7 @@ services:
 
   backend:
     build:
-      context: ./seged/seged
+      context: ./backend
       dockerfile: Dockerfile
     container_name: seged_backend
     restart: unless-stopped
@@ -88,9 +88,8 @@ services:
 
   frontend:
     build:
-      context: ./project-front-main/project-front-main
+      context: ./frontend
       dockerfile: Dockerfile
-      target: dev
       args:
         VITE_API_URL: http://localhost:8080
     container_name: seged_frontend
@@ -98,7 +97,7 @@ services:
     ports:
       - "3000:5173"
     volumes:
-      - ./project-front-main/project-front-main:/app
+      - ./frontend:/app
       - /app/node_modules
     environment:
       NODE_ENV: development
