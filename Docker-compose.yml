@@ -90,8 +90,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: http://localhost:8080
     container_name: seged_frontend
     restart: unless-stopped
     ports:
@@ -101,6 +99,7 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+      VITE_API_URL: http://localhost:8080
     depends_on:
       - backend
     networks:
