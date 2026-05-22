@@ -83,8 +83,13 @@ public class PredictorService {
         instance.setValue(0, request.getCantidadVendidaMes());
         instance.setValue(1, request.getStockActual() == null ? 0.0 : request.getStockActual());
         instance.setValue(2, request.getPrecioUnitario() == null ? 0.0 : request.getPrecioUnitario().doubleValue());
-        instance.setValue(3, request.getCategoria() == null ? "SIN CATEGORIA" : request.getCategoria());
-        instance.setValue(4, request.getMesVenta() == null ? "ENERO" : request.getMesVenta());
+        instance.setValue(3, request.getCategoria() == null ? "SIN CATEGORIA" : request.getCategoria().toUpperCase());
+        String mesVenta = request.getMesVenta() == null ? "ENERO" : request.getMesVenta().toUpperCase();
+        try {
+            instance.setValue(4, mesVenta);
+        } catch (IllegalArgumentException e) {
+            instance.setValue(4, "ENERO");
+        }
         instance.setValue(5, request.getFrecuenciaReposicion());
         instance.setValue(6, request.isTienePromocion() ? "true" : "false");
         return instance;

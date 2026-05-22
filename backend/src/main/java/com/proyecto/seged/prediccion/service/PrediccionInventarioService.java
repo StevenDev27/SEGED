@@ -102,7 +102,8 @@ public class PrediccionInventarioService {
                 ? producto.getCategoria().getNombre().toUpperCase()
                 : "SIN CATEGORIA";
 
-        String mesVenta = LocalDate.now().getMonth().name();
+        String[] mesesEspanol = {"ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"};
+        String mesVenta = mesesEspanol[LocalDate.now().getMonthValue() - 1];
         int cantidadVendidaMes = calcularCantidadVendidaMes(producto.getId());
         int frecuenciaReposicion = calcularFrecuenciaReposicion(inventario);
         boolean tienePromocion = calcularTienePromocion(producto.getId());
