@@ -29,3 +29,7 @@ jwt:
 jms:
   queue:
     product: product.queue
+
+seged:
+  ml:
+    modelo-path: ml/demanda_j48.model
