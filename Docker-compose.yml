@@ -76,7 +76,11 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       APP_SESSION_TTL: PT30M
-      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/seged?authSource=admin
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: seged
+      SPRING_DATA_MONGODB_USERNAME: admin
+      SPRING_DATA_MONGODB_PASSWORD: admin123
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
