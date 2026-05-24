@@ -18,7 +18,6 @@ export function Inventario() {
     categoriaId: "",
     stockActual: "",
     stockMinimo: "",
-    stockMaximo: "",
     almacen: "",
     pasillo: "",
   });
@@ -69,7 +68,15 @@ export function Inventario() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "productoId") {
+      // Buscar el producto seleccionado y auto-rellenar la categoría
+      const productoSeleccionado = productos.find((p) => p.id === value);
+      const categoriaId = productoSeleccionado?.categoria?.id ?? "";
+      setFormData((prev) => ({ ...prev, productoId: value, categoriaId }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
 
@@ -94,7 +101,6 @@ export function Inventario() {
         categoriaId: formData.categoriaId,
         stockActual: Number(formData.stockActual),
         stockMinimo: formData.stockMinimo ? Number(formData.stockMinimo) : 0,
-        stockMaximo: formData.stockMaximo ? Number(formData.stockMaximo) : 0,
         almacen: formData.almacen,
         pasillo: formData.pasillo,
       });
@@ -103,7 +109,6 @@ export function Inventario() {
         categoriaId: "",
         stockActual: "",
         stockMinimo: "",
-        stockMaximo: "",
         almacen: "",
         pasillo: "",
       });
@@ -221,20 +226,20 @@ export function Inventario() {
                     </div>
                     <div className="col-md-3">
                       <label className="form-label">Categoría</label>
-                      <select
-                        className="form-select"
-                        name="categoriaId"
-                        value={formData.categoriaId}
-                        onChange={handleChange}
-                        disabled={submitting}
-                      >
-                        <option value="">Sin categoría</option>
-                        {categorias.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      <input
+                        type="text"
+                        className="form-control"
+                        readOnly
+                        value={
+                          formData.categoriaId
+                            ? (categorias.find((c) => c.id === formData.categoriaId)?.nombre ?? "Sin categoría")
+                            : "Sin categoría"
+                        }
+                        style={{ backgroundColor: "#2a2d3a", cursor: "default" }}
+                        tabIndex={-1}
+                      />
+                      {/* Campo oculto para enviar el valor real al submit */}
+                      <input type="hidden" name="categoriaId" value={formData.categoriaId} />
                     </div>
                     <div className="col-md-2">
                       <label className="form-label">Stock Actual *</label>
@@ -259,19 +264,6 @@ export function Inventario() {
                         name="stockMinimo"
                         className="form-control"
                         value={formData.stockMinimo}
-                        onChange={handleChange}
-                        disabled={submitting}
-                      />
-                    </div>
-                    <div className="col-md-2">
-                      <label className="form-label">Stock Máximo</label>
-                      <input
-                        type="number"
-                        step="1"
-                        min="0"
-                        name="stockMaximo"
-                        className="form-control"
-                        value={formData.stockMaximo}
                         onChange={handleChange}
                         disabled={submitting}
                       />
@@ -343,7 +335,6 @@ export function Inventario() {
                     <th>Categoría</th>
                     <th>Stock Actual</th>
                     <th>Stock Mín.</th>
-                    <th>Stock Máx.</th>
                     <th>Almacén</th>
                     <th>Pasillo</th>
                     <th style={{ width: 200 }}>Acciones</th>
@@ -359,16 +350,13 @@ export function Inventario() {
                           className={
                             inv.stockActual < inv.stockMinimo
                               ? "badge bg-danger"
-                              : inv.stockActual > inv.stockMaximo
-                                ? "badge bg-warning text-dark"
-                                : "badge bg-success"
+                              : "badge bg-success"
                           }
                         >
                           {Math.round(inv.stockActual)}
                         </span>
                       </td>
                       <td>{Math.round(inv.stockMinimo)}</td>
-                      <td>{Math.round(inv.stockMaximo)}</td>
                       <td>{inv.almacen || "-"}</td>
                       <td>{inv.pasillo || "-"}</td>
                       <td>

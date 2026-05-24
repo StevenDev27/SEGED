@@ -25,7 +25,6 @@ public class Inventario {
 
     private Double stockActual;
     private Double stockMinimo;
-    private Double stockMaximo;
 
     private String almacen;
     private String pasillo;
