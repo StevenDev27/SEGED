@@ -15,6 +15,7 @@ WORKDIR /app
 RUN useradd -r -s /bin/false spring && mkdir -p /app && chown spring:spring /app
 
 COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/ml /app/ml
 
 EXPOSE 8080
 
