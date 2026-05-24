@@ -51,6 +51,10 @@ public class TestModel {
         System.out.println("Etiqueta predicha (indice): " + etiqueta);
         String demandaPredicha = dataset.classAttribute().value((int) etiqueta);
         System.out.println("Demanda predicha: " + demandaPredicha);
+
+        double[] distribucion = modelo.distributionForInstance(instance);
+        double confianza = distribucion[(int) etiqueta];
+        System.out.println("Confianza calculada: " + confianza);
         
         assertNotNull(demandaPredicha);
     }
