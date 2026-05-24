@@ -47,6 +47,10 @@ public class TestModel {
             String demandaPredicha = dataset.classAttribute().value((int) etiqueta);
             System.out.println("Demanda predicha: " + demandaPredicha);
 
+            double[] distribucion = modelo.distributionForInstance(instance);
+            double confianza = distribucion[(int) etiqueta];
+            System.out.println("Confianza: " + confianza);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

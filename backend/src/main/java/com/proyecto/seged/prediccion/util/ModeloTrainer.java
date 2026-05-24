@@ -35,9 +35,12 @@ public class ModeloTrainer {
         stringToNominal.setAttributeRange("4");
         stringToNominal.setInputFormat(data);
 
+        J48 j48 = new J48();
+        j48.setMinNumObj(5); // Forzar hojas con al menos 5 instancias para que haya mezcla y la confianza varíe
+
         FilteredClassifier filteredClassifier = new FilteredClassifier();
         filteredClassifier.setFilter(stringToNominal);
-        filteredClassifier.setClassifier(new J48());
+        filteredClassifier.setClassifier(j48);
         filteredClassifier.buildClassifier(data);
 
         Path modelFile = Paths.get(modelPath);
