@@ -587,9 +587,9 @@ export function Compras() {
                             <tr key={l.id}>
                               <td>{l.productoNombre || l.productoId}</td>
                               <td>{l.cantidad}</td>
-                              <td>${Math.round(l.precioUnitario)}</td>
-                              <td>${Math.round(l.descuentoValor)}</td>
-                              <td>${Math.round(l.subtotal)}</td>
+                              <td>${Math.round(l.precioUnitario).toLocaleString('es-CO')}</td>
+                              <td>${Math.round(l.descuentoValor).toLocaleString('es-CO')}</td>
+                              <td>${Math.round(l.subtotal).toLocaleString('es-CO')}</td>
                               <td>
                                 <button
                                   type="button"
@@ -609,10 +609,10 @@ export function Compras() {
 
                   <div className="d-flex justify-content-between align-items-center mt-4">
                     <div>
-                      <strong>Subtotal:</strong> ${Math.round(totales.subtotal)} &nbsp;
-                      <strong>Descuentos:</strong> ${Math.round(totales.descuentos)} &nbsp;
-                      <strong>Impuestos:</strong> ${Math.round(totales.impuestos)} &nbsp;
-                      <strong>Total:</strong> ${Math.round(totales.total)}
+                      <strong>Subtotal:</strong> ${Math.round(totales.subtotal).toLocaleString('es-CO')} &nbsp;
+                      <strong>Descuentos:</strong> ${Math.round(totales.descuentos).toLocaleString('es-CO')} &nbsp;
+                      <strong>Impuestos:</strong> ${Math.round(totales.impuestos).toLocaleString('es-CO')} &nbsp;
+                      <strong>Total:</strong> ${Math.round(totales.total).toLocaleString('es-CO')}
                     </div>
                     <div className="d-flex gap-2">
                       <button type="button" className="btn btn-secondary" onClick={() => setShowFormModal(false)}>
@@ -684,7 +684,7 @@ export function Compras() {
                         <td>{getProveedorNombre(c.proveedorId)}</td>
                         <td>{c.metodoPago}</td>
                         <td>{c.tipo}</td>
-                        <td>${Math.round(c.total)}</td>
+                        <td>${Math.round(c.total).toLocaleString('es-CO')}</td>
                         <td>
                           <span className="badge bg-success">{c.estado}</span>
                         </td>

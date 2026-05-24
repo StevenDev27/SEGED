@@ -172,6 +172,11 @@ h6,
   color: white;
 }
 
+.form-select option {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+}
+
 .form-control::placeholder {
   color: var(--text-muted);
 }

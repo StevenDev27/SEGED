@@ -66,9 +66,9 @@ export function VentaDetalle() {
 
 
           <h5 className="mt-4">Totales</h5>
-          <p><strong>Subtotal:</strong> ${Math.round(venta.calculos?.subTotal)}</p>
-          <p><strong>Impuestos:</strong> ${Math.round(venta.calculos?.impuestos)}</p>
-          <p><strong>Total:</strong> <strong>${Math.round(venta.calculos?.total)}</strong></p>
+          <p><strong>Subtotal:</strong> ${Math.round(venta.calculos?.subTotal || 0).toLocaleString('es-CO')}</p>
+          <p><strong>Impuestos:</strong> ${Math.round(venta.calculos?.impuestos || 0).toLocaleString('es-CO')}</p>
+          <p><strong>Total:</strong> <strong>${Math.round(venta.calculos?.total || 0).toLocaleString('es-CO')}</strong></p>
 
 
           <hr />
@@ -100,9 +100,9 @@ export function VentaDetalle() {
                       <tr key={d.id}>
                         <td>{prod ? prod.nombre : "Producto no encontrado"}</td>
                         <td>{d.cantidad}</td>
-                        <td>${Math.round(d.precioUnitario)}</td>
-                        <td>{d.descuentoValor ? `$${Math.round(d.descuentoValor)}` : "0"}</td>
-                        <td>${Math.round(d.subtotal)}</td>
+                        <td>${Math.round(d.precioUnitario || 0).toLocaleString('es-CO')}</td>
+                        <td>{d.descuentoValor ? `$${Math.round(d.descuentoValor).toLocaleString('es-CO')}` : "0"}</td>
+                        <td>${Math.round(d.subtotal || 0).toLocaleString('es-CO')}</td>
                       </tr>
                     );
                   })}

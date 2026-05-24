@@ -1,6 +1,4 @@
-/*
-backend/src/main/java/com/proyecto/seged/prediccion/service/ArffExporterService.java
-*/
+
 package com.proyecto.seged.prediccion.service;
 
 import com.proyecto.seged.model.Inventario;

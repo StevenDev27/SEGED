@@ -218,7 +218,7 @@ export function Productos() {
                     <tr key={p.id}>
                       <td>{p.nombre}</td>
                       <td>{p.descripcion}</td>
-                      <td>${Math.round(p.precioUnitario)}</td>
+                      <td>${Math.round(p.precioUnitario || 0).toLocaleString('es-CO')}</td>
                       <td>{p.categoriaNombre || "-"}</td>
                       <td>
                         <button

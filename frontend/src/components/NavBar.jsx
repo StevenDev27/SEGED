@@ -75,6 +75,11 @@ export function NavBar() {
                   Compras
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link to="/predicciones" className="nav-link">
+                  Predicciones
+                </Link>
+              </li>
               
             </ul>
 

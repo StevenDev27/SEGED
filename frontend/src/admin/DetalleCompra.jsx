@@ -70,21 +70,21 @@ export function DetalleCompra() {
           </p>
           <p>
             <strong>Fecha:</strong>{" "}
-            {new Date(compra.informacionCompra?.fecha).toLocaleString()}
+            {new Date(compra.informacionCompra?.fecha).toLocaleString('es-CO')}
           </p>
 
           <h5 className="mt-4">Totales</h5>
           <p>
-            <strong>Subtotal:</strong> ${Math.round(compra.calculo?.subtotal)}
+            <strong>Subtotal:</strong> ${Math.round(compra.calculo?.subtotal || 0).toLocaleString('es-CO')}
           </p>
-          <p>
-            <strong>Descuentos:</strong> ${Math.round(compra.calculo?.descuentos)}
+          <p className="mb-1">
+            <strong>Descuentos:</strong> ${Math.round(compra.calculo?.descuentos || 0).toLocaleString('es-CO')}
           </p>
-          <p>
-            <strong>Impuestos:</strong> ${Math.round(compra.calculo?.impuestos)}
+          <p className="mb-1">
+            <strong>Impuestos:</strong> ${Math.round(compra.calculo?.impuestos || 0).toLocaleString('es-CO')}
           </p>
-          <p>
-            <strong>Total:</strong> <strong>${Math.round(compra.calculo?.total)}</strong>
+          <p className="mb-1">
+            <strong>Total:</strong> <strong>${Math.round(compra.calculo?.total || 0).toLocaleString('es-CO')}</strong>
           </p>
 
           <hr />
@@ -114,13 +114,13 @@ export function DetalleCompra() {
                       <tr key={d.id}>
                         <td>{prod ? prod.nombre : "Producto no encontrado"}</td>
                         <td>{d.cantidad}</td>
-                        <td>${Math.round(d.precioUnitario)}</td>
+                        <td>${Math.round(d.precioUnitario || 0).toLocaleString('es-CO')}</td>
                         <td>
-                          {d.descuentos?.valor
-                            ? `$${Math.round(d.descuentos.valor)}`
+                          {d.descuentos && d.descuentos.valor
+                            ? `$${Math.round(d.descuentos.valor).toLocaleString('es-CO')}`
                             : "0"}
                         </td>
-                        <td>${Math.round(d.subtotal)}</td>
+                        <td>${Math.round(d.subtotal || 0).toLocaleString('es-CO')}</td>
                       </tr>
                     );
                   })}

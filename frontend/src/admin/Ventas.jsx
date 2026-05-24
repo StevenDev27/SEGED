@@ -578,7 +578,7 @@ export function Ventas() {
                         <option value="">Seleccione un producto</option>
                         {productos.map((p) => (
                           <option key={p.id} value={p.id}>
-                            {p.nombre} — ${Math.round(p.precioUnitario)}
+                            {p.nombre} — ${Math.round(p.precioUnitario || 0).toLocaleString('es-CO')}
                           </option>
                         ))}
                       </select>
@@ -654,9 +654,9 @@ export function Ventas() {
                             <tr key={l.id}>
                               <td>{l.productoNombre || l.productoId}</td>
                               <td>{l.cantidad}</td>
-                              <td>{Math.round(l.precioUnitario)}</td>
-                              <td>{Math.round(l.descuentoValor)}</td>
-                              <td>{Math.round(l.subtotal)}</td>
+                              <td>${Math.round(l.precioUnitario || 0).toLocaleString('es-CO')}</td>
+                              <td>${Math.round(l.descuentoValor || 0).toLocaleString('es-CO')}</td>
+                              <td>${Math.round(l.subtotal || 0).toLocaleString('es-CO')}</td>
                               <td>
                                 <button
                                   type="button"
@@ -676,9 +676,9 @@ export function Ventas() {
 
                   <div className="d-flex justify-content-between align-items-center mt-4">
                     <div>
-                      <strong>Subtotal:</strong> {Math.round(totales.subTotal)} &nbsp;
-                      <strong>Impuestos:</strong> {Math.round(totales.impuestos)} &nbsp;
-                      <strong>Total:</strong> {Math.round(totales.total)}
+                      <strong>Subtotal:</strong> ${Math.round(totales.subTotal || 0).toLocaleString('es-CO')} &nbsp;
+                      <strong>Impuestos:</strong> ${Math.round(totales.impuestos || 0).toLocaleString('es-CO')} &nbsp;
+                      <strong>Total:</strong> ${Math.round(totales.total || 0).toLocaleString('es-CO')}
                     </div>
                     <div className="d-flex gap-2">
                       <button type="button" className="btn btn-secondary" onClick={() => setShowFormModal(false)}>
@@ -746,7 +746,7 @@ export function Ventas() {
                         <td>{v.numero}</td>
                         <td>{getClienteNombre(v.clienteId)}</td>
                         <td>{v.metodoPago}</td>
-                        <td>${Math.round(v.total)}</td>
+                        <td>${Math.round(v.total || 0).toLocaleString('es-CO')}</td>
                         <td>
                           <span className="badge bg-success">{v.estado}</span>
                         </td>
