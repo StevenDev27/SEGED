@@ -32,6 +32,7 @@ export function Ventas() {
 
   const [ventaForm, setVentaForm] = useState({
     clienteId: "",
+    clienteNombre: "",
     numero: "",
     metodoPago: "Efectivo",
   });
@@ -49,6 +50,8 @@ export function Ventas() {
 
   const [lineas, setLineas] = useState([]);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [showProductSuggestions, setShowProductSuggestions] = useState(false);
+  const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
 
 
   const ventasFiltradas = useMemo(() => {
@@ -78,27 +81,41 @@ export function Ventas() {
 
   const onChangeVenta = (e) => {
     const { name, value } = e.target;
+    if (name === "clienteNombre") {
+      setVentaForm((prev) => ({
+        ...prev,
+        clienteNombre: value,
+        clienteId: "",
+      }));
+      setShowClienteSuggestions(Boolean(value.trim()));
+      return;
+    }
     setVentaForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectCliente = (cliente) => {
+    setVentaForm((prev) => ({
+      ...prev,
+      clienteId: cliente.id,
+      clienteNombre: cliente.nombre || "",
+    }));
+    setShowClienteSuggestions(false);
   };
 
 
   const onChangeLinea = (e) => {
     const { name, value } = e.target;
 
-
-    if (name === "productoId") {
-      const selected = productos.find((p) => p.id === value);
-
-
+    if (name === "productoNombre") {
       setLineForm((prev) => ({
         ...prev,
-        productoId: value,
-        productoNombre: selected ? selected.nombre : "",
-        precioUnitario: selected ? selected.precioUnitario : 0,
+        productoNombre: value,
+        productoId: "",
+        precioUnitario: 0,
       }));
+      setShowProductSuggestions(Boolean(value.trim()));
       return;
     }
-
 
     setLineForm((prev) => ({
       ...prev,
@@ -107,6 +124,16 @@ export function Ventas() {
           ? Number(value)
           : value,
     }));
+  };
+
+  const handleSelectProducto = (producto) => {
+    setLineForm((prev) => ({
+      ...prev,
+      productoId: producto.id,
+      productoNombre: producto.nombre,
+      precioUnitario: producto.precioUnitario,
+    }));
+    setShowProductSuggestions(false);
   };
 
 
@@ -258,7 +285,7 @@ export function Ventas() {
 
 
       alert("Venta registrada con éxito");
-      setVentaForm({ clienteId: "", numero: "", metodoPago: "Efectivo" });
+      setVentaForm({ clienteId: "", clienteNombre: "", numero: "", metodoPago: "Efectivo" });
       setLineForm({
         productoId: "",
         productoNombre: "",
@@ -517,22 +544,44 @@ export function Ventas() {
               <div className="modal-body">
                 <form onSubmit={onSubmitVenta}>
                   <div className="row g-3 mb-3">
-                    <div className="col-md-4">
+                    <div className="col-md-4 position-relative">
                       <label className="form-label">Cliente</label>
-                      <select
-                        name="clienteId"
-                        className="form-select"
-                        value={ventaForm.clienteId}
+                      <input
+                        type="search"
+                        name="clienteNombre"
+                        className="form-control"
+                        placeholder="Escribe para buscar cliente"
+                        value={ventaForm.clienteNombre}
                         onChange={onChangeVenta}
+                        autoComplete="off"
                         required
-                      >
-                        <option value="">Seleccione un cliente</option>
-                        {clientes.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre} — {c.cedula}
-                          </option>
-                        ))}
-                      </select>
+                      />
+                      {showClienteSuggestions && ventaForm.clienteNombre.trim() && (
+                        <div className="list-group position-absolute w-100 shadow" style={{ zIndex: 1100, maxHeight: 220, overflowY: "auto" }}>
+                          {clientes
+                            .filter((c) =>
+                              c.nombre.toLowerCase().includes(ventaForm.clienteNombre.trim().toLowerCase()) ||
+                              c.cedula?.toLowerCase().includes(ventaForm.clienteNombre.trim().toLowerCase())
+                            )
+                            .map((cliente) => (
+                              <button
+                                key={cliente.id}
+                                type="button"
+                                className="list-group-item list-group-item-action"
+                                onClick={() => handleSelectCliente(cliente)}
+                              >
+                                {cliente.nombre} — {cliente.cedula}
+                              </button>
+                            ))}
+                          {clientes.filter((c) =>
+                            c.nombre.toLowerCase().includes(ventaForm.clienteNombre.trim().toLowerCase()) ||
+                            c.cedula?.toLowerCase().includes(ventaForm.clienteNombre.trim().toLowerCase())
+                          ).length === 0 && (
+                            <div className="list-group-item text-muted">No se encontraron clientes</div>
+                          )}
+                        </div>
+                      )}
+                      <input type="hidden" name="clienteId" value={ventaForm.clienteId} />
                     </div>
 
 
@@ -566,22 +615,37 @@ export function Ventas() {
 
                   <h6>Detalle de productos</h6>
                   <div className="row g-2 align-items-end mb-2">
-                    <div className="col-md-3">
+                    <div className="col-md-4 position-relative">
                       <label className="form-label">Producto</label>
-                      <select
-                        name="productoId"
-                        className="form-select"
-                        value={lineForm.productoId}
+                      <input
+                        type="search"
+                        name="productoNombre"
+                        className="form-control"
+                        placeholder="Escribe para buscar producto"
+                        value={lineForm.productoNombre}
                         onChange={onChangeLinea}
+                        autoComplete="off"
                         required={lineas.length === 0}
-                      >
-                        <option value="">Seleccione un producto</option>
-                        {productos.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombre} — ${Math.round(p.precioUnitario || 0).toLocaleString('es-CO')}
-                          </option>
-                        ))}
-                      </select>
+                      />
+                      {showProductSuggestions && lineForm.productoNombre.trim() && productos.length > 0 && (
+                        <div className="list-group position-absolute w-100 shadow" style={{ zIndex: 1100, maxHeight: 220, overflowY: "auto" }}>
+                          {productos
+                            .filter((p) =>
+                              p.nombre.toLowerCase().includes(lineForm.productoNombre.trim().toLowerCase())
+                            )
+                            .map((producto) => (
+                              <button
+                                type="button"
+                                key={producto.id}
+                                className="list-group-item list-group-item-action"
+                                onClick={() => handleSelectProducto(producto)}
+                              >
+                                {producto.nombre} — ${Math.round(producto.precioUnitario || 0).toLocaleString('es-CO')}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                      <input type="hidden" name="productoId" value={lineForm.productoId} />
                     </div>
                     <div className="col-md-2">
                       <label className="form-label">Cantidad</label>
@@ -604,6 +668,8 @@ export function Ventas() {
                         step="1"
                         value={lineForm.precioUnitario}
                         onChange={onChangeLinea}
+                        readOnly
+                        title="Precio fijado por el producto"
                       />
                     </div>
                     <div className="col-md-2">

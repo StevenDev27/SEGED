@@ -54,9 +54,12 @@ export function DetalleCompra() {
         <div className="card-header bg-success text-white">
           <div className="d-flex justify-content-between align-items-center">
             <h4 className="mb-0">Detalle de Compra #{compra.informacionCompra?.numero}</h4>
-            {/* <button className="btn btn-sm btn-light" onClick={handleVolver}>
-              ← Volver
-            </button> */}
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              aria-label="Cerrar"
+              onClick={handleVolver}
+            />
           </div>
         </div>
         <div className="card-body">

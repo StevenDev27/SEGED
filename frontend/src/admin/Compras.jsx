@@ -6,6 +6,7 @@ import { useProveedores } from "../hooks/useProveedores";
 import { useProductos } from "../hooks/useProductos";
 import { Link } from "react-router-dom";
 import api from "../api/client";
+import { useCategoria } from "../hooks/useCategoria";
 
 
 export function Compras() {
@@ -22,6 +23,7 @@ export function Compras() {
   const { createDetalle } = useDetalleCompras();
   const { items: proveedores, loading: loadingProveedores } = useProveedores();
   const { items: productos } = useProductos();
+  const { items: categorias } = useCategoria();
 
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +33,7 @@ export function Compras() {
 
   const [compraForm, setCompraForm] = useState({
     proveedorId: "",
+    proveedorNombre: "",
     numero: "",
     metodoPago: "Efectivo",
     tipo: "NORMAL",
@@ -40,6 +43,8 @@ export function Compras() {
   const [lineForm, setLineForm] = useState({
     productoId: "",
     productoNombre: "",
+    categoriaId: "",
+    categoriaNombre: "",
     cantidad: 1,
     precioUnitario: 0,
     descuentoTipo: "",
@@ -49,6 +54,9 @@ export function Compras() {
 
   const [lineas, setLineas] = useState([]);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [showProductSuggestions, setShowProductSuggestions] = useState(false);
+  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+  const [showProveedorSuggestions, setShowProveedorSuggestions] = useState(false);
 
 
   const comprasFiltradas = useMemo(() => {
@@ -78,6 +86,15 @@ export function Compras() {
 
   const onChangeCompra = (e) => {
     const { name, value } = e.target;
+    if (name === "proveedorNombre") {
+      setCompraForm((prev) => ({
+        ...prev,
+        proveedorNombre: value,
+        proveedorId: "",
+      }));
+      setShowProveedorSuggestions(Boolean(value.trim()));
+      return;
+    }
     setCompraForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -85,20 +102,23 @@ export function Compras() {
   const onChangeLinea = (e) => {
     const { name, value } = e.target;
 
-
-    if (name === "productoId") {
-      const selected = productos.find((p) => p.id === value);
-
-
+    if (name === "productoNombre") {
       setLineForm((prev) => ({
         ...prev,
-        productoId: value,
-        productoNombre: selected ? selected.nombre : "",
-        precioUnitario: selected ? selected.precioUnitario : 0,
+        productoNombre: value,
+        productoId: "",
+        precioUnitario: 0,
+        categoriaId: "",
       }));
+      setShowProductSuggestions(Boolean(value.trim()));
       return;
     }
 
+    if (name === "categoriaNombre") {
+      setLineForm((prev) => ({ ...prev, categoriaNombre: value, categoriaId: "" }));
+      setShowCategorySuggestions(Boolean(value.trim()));
+      return;
+    }
 
     setLineForm((prev) => ({
       ...prev,
@@ -107,6 +127,36 @@ export function Compras() {
           ? Number(value)
           : value,
     }));
+  };
+
+  const handleSelectProducto = (producto) => {
+    setLineForm((prev) => ({
+      ...prev,
+      productoId: producto.id,
+      productoNombre: producto.nombre,
+      precioUnitario: producto.precioUnitario,
+      categoriaId: producto.categoriaId || "",
+      categoriaNombre: producto.categoriaNombre || producto.categoria?.nombre || "",
+    }));
+    setShowProductSuggestions(false);
+  };
+
+  const handleSelectCategoria = (categoria) => {
+    setLineForm((prev) => ({
+      ...prev,
+      categoriaId: categoria.id,
+      categoriaNombre: categoria.nombre,
+    }));
+    setShowCategorySuggestions(false);
+  };
+
+  const handleSelectProveedor = (proveedor) => {
+    setCompraForm((prev) => ({
+      ...prev,
+      proveedorId: proveedor.id,
+      proveedorNombre: proveedor.nombreProveedor || proveedor.nombre || "",
+    }));
+    setShowProveedorSuggestions(false);
   };
 
 
@@ -159,6 +209,30 @@ export function Compras() {
   }, [lineas]);
 
 
+  const findCompraByNumero = async (numero) => {
+    if (!numero) return null;
+    const res = await api.get('/api/compras', { validateStatus: () => true });
+    if (res.status >= 400) return null;
+    const data = Array.isArray(res.data) ? res.data : res.data?.content ?? [];
+    const existing = data.find((c) => {
+      const num = c.informacionCompra?.numero ?? c.numero ?? "";
+      return String(num) === String(numero);
+    });
+    if (!existing) return null;
+    return {
+      id: existing.id ?? existing._id ?? null,
+      proveedorId: existing.proveedor_id ?? "",
+      numero: existing.informacionCompra?.numero ?? existing.numero ?? "",
+      metodoPago: existing.informacionCompra?.metodoPago ?? "",
+      tipo: existing.informacionCompra?.tipo ?? "",
+      calculo: existing.calculo ?? {},
+      estado: existing.estado ?? "",
+      fechaCreacion: existing.fechaCreacion ?? null,
+      fechaActualizacion: existing.fechaActualizacion ?? null,
+      _raw: existing,
+    };
+  };
+
   const onSubmitCompra = async (e) => {
     e.preventDefault();
 
@@ -206,11 +280,12 @@ export function Compras() {
     const now = new Date().toISOString();
 
 
+    const generatedNumero = compraForm.numero?.trim() || "COMPRA-" + Date.now();
     const payloadCompra = {
       proveedor_id: compraForm.proveedorId,
       usuario_id: null,
       informacionCompra: {
-        numero: compraForm.numero || "COMPRA-" + Date.now(),
+        numero: generatedNumero,
         fecha: now,
         metodoPago: compraForm.metodoPago,
         tipo: compraForm.tipo,
@@ -228,27 +303,154 @@ export function Compras() {
 
 
     try {
-      const compraCreada = await createCompraConInventario(payloadCompra, lineasParaCompra);
+      let compraCreada;
+      let comprasCreadasEnFallback = false;
+      try {
+        compraCreada = await createCompraConInventario(payloadCompra, lineasParaCompra);
+      } catch (errCreateCI) {
+        const msg = errCreateCI?.message || String(errCreateCI || '');
+        if (msg.toLowerCase().includes('inventario') || msg.toLowerCase().includes('no existe inventario')) {
+          console.warn('createCompraConInventario falló, intentando detectar compra existente antes de fallback:', msg);
+          const existingCompra = await findCompraByNumero(generatedNumero);
+          if (existingCompra) {
+            compraCreada = existingCompra;
+            console.warn('Se encontró una compra existente con el mismo número, evitando crear duplicado.');
+          } else {
+            compraCreada = await createCompra(payloadCompra);
+            comprasCreadasEnFallback = true;
 
-
-      for (const linea of lineasParaCompra) {
-        await createDetalle({
-          compraId: compraCreada.id,
-          productoId: linea.productoId,
-          cantidad: linea.cantidad,
-          precioUnitario: linea.precioUnitario,
-          descuentoTipo: linea.descuentoTipo,
-          descuentoValor: linea.descuentoValor,
-          subtotal: linea.subtotal,
-        });
+            // crear detalles solo cuando realmente creamos la compra en fallback
+            for (const linea of lineasParaCompra) {
+              await createDetalle({
+                compraId: compraCreada.id,
+                productoId: linea.productoId,
+                cantidad: linea.cantidad,
+                precioUnitario: linea.precioUnitario,
+                descuentoTipo: linea.descuentoTipo,
+                descuentoValor: linea.descuentoValor,
+                subtotal: linea.subtotal,
+              });
+            }
+          }
+        } else {
+          throw errCreateCI;
+        }
       }
 
+      // Si llegamos aquí, tenemos `compraCreada` (vía createCompraConInventario o fallback)
 
-      alert("Compra registrada con éxito. Inventario actualizado.");
-      setCompraForm({ proveedorId: "", numero: "", metodoPago: "Efectivo", tipo: "NORMAL" });
+      if (comprasCreadasEnFallback) {
+        // Ya creamos los detalles dentro del fallback.
+      } else {
+        // Si usamos el endpoint createCompraConInventario, no volvemos a crear detalles de nuevo.
+      }
+
+      // Notificar a otras partes de la app que el inventario fue actualizado
+      try {
+        window.dispatchEvent(new CustomEvent('inventario:actualizado', { detail: { compraId: compraCreada.id } }));
+      } catch (e) {
+        console.warn('No se pudo disparar evento de inventario:', e);
+      }
+
+      // Verificar inventarios existentes, registrar movimientos de entrada y crear inventarios faltantes
+      try {
+        const invRes = await api.get('/api/inventarios', { validateStatus: () => true });
+        const invData = Array.isArray(invRes.data) ? invRes.data : (invRes.data?.content ?? invRes.data ?? []);
+        const invByProductoId = new Map();
+        invData.forEach(i => {
+          const pid = i.producto?.id ?? i.productoId ?? i.producto;
+          if (pid) invByProductoId.set(String(pid), i);
+        });
+
+        let createdInventariosCount = 0;
+        let registeredMovimientosCount = 0;
+
+        for (const linea of lineasParaCompra) {
+          const pid = linea.productoId;
+          if (!pid) continue;
+          const key = String(pid);
+          const existingInv = invByProductoId.get(key);
+
+          if (existingInv) {
+            // Registrar movimiento de entrada para actualizar stock
+            const movimientoBody = {
+              tipoMovimiento: 'entrada',
+              cantidad: Number(linea.cantidad) || 0,
+              motivo: 'Compra automática',
+              usuarioId: null,
+              ventaId: null,
+              compraId: compraCreada.id,
+            };
+            try {
+              const movRes = await api.post(`/api/inventarios/${existingInv.id}/movimientos`, movimientoBody, { validateStatus: () => true });
+              if (movRes && movRes.status < 400) registeredMovimientosCount += 1;
+            } catch (errMov) {
+              console.warn('No se pudo registrar movimiento para inventario', existingInv.id, errMov);
+            }
+          } else {
+            // crear inventario con el stock comprado
+            const body = {
+              producto: { id: pid },
+              categoria: linea.categoriaId ? { id: linea.categoriaId } : null,
+              stockActual: linea.cantidad || 0,
+              stockMinimo: 1,
+              almacen: "",
+              pasillo: "",
+              movimientos: [],
+              activo: true,
+            };
+
+            try {
+              const resInv = await api.post('/api/inventarios', body, { validateStatus: () => true });
+              if (resInv && resInv.status < 400) {
+                createdInventariosCount += 1;
+                // intentar registrar movimiento en el inventario recién creado (si el backend lo soporta)
+                const newInvId = resInv.data?.id ?? resInv.data?._id ?? null;
+                if (newInvId) {
+                  try {
+                    const movimientoBody = {
+                      tipoMovimiento: 'entrada',
+                      cantidad: Number(linea.cantidad) || 0,
+                      motivo: 'Compra automática (inicial)',
+                      usuarioId: null,
+                      ventaId: null,
+                      compraId: compraCreada.id,
+                    };
+                    const movRes = await api.post(`/api/inventarios/${newInvId}/movimientos`, movimientoBody, { validateStatus: () => true });
+                    if (movRes && movRes.status < 400) registeredMovimientosCount += 1;
+                  } catch (errMov2) {
+                    console.warn('No se pudo registrar movimiento en inventario nuevo', newInvId, errMov2);
+                  }
+                }
+              }
+            } catch (errInv) {
+              console.warn('No se pudo crear inventario para producto', pid, errInv);
+            }
+          }
+        }
+
+        // Forzar recarga del inventario en la UI
+        try { window.dispatchEvent(new CustomEvent('inventario:actualizado', { detail: { compraId: compraCreada.id } })); } catch(e){}
+
+        // Mensaje al usuario
+        const parts = [];
+        if (createdInventariosCount > 0) parts.push(`${createdInventariosCount} inventario(s) creados`);
+        if (registeredMovimientosCount > 0) parts.push(`${registeredMovimientosCount} movimiento(s) registrados`);
+        if (parts.length > 0) {
+          alert(`Compra registrada con éxito. ${parts.join(' y ')}.`);
+        } else {
+          alert('Compra registrada con éxito. Inventario actualizado.');
+        }
+      } catch (errCheck) {
+        console.warn('Error al verificar/crear inventarios tras compra:', errCheck);
+        alert('Compra registrada con éxito. Inventario actualizado.');
+      }
+      setCompraForm({ proveedorId: "", proveedorNombre: "", numero: "", metodoPago: "Efectivo", tipo: "NORMAL" });
       setLineForm({
         productoId: "",
         productoNombre: "",
+        categoriaId: "",
+        categoriaNombre: "",
         cantidad: 1,
         precioUnitario: 0,
         descuentoTipo: "",
@@ -427,29 +629,34 @@ export function Compras() {
               <div className="modal-body">
                 <form onSubmit={onSubmitCompra}>
                   <div className="row g-3 mb-3">
-                    <div className="col-md-3">
+                    <div className="col-md-3 position-relative">
                       <label className="form-label">Proveedor</label>
-                      <select
-                        name="proveedorId"
-                        className="form-select"
-                        value={compraForm.proveedorId}
+                      <input
+                        type="search"
+                        name="proveedorNombre"
+                        className="form-control"
+                        placeholder={loadingProveedores ? "Cargando proveedores..." : "Busca proveedor"}
+                        value={compraForm.proveedorNombre}
                         onChange={onChangeCompra}
+                        autoComplete="off"
                         required
                         disabled={loadingProveedores}
-                      >
-                        <option value="">
-                          {loadingProveedores
-                            ? "Cargando proveedores..."
-                            : proveedores.length === 0
-                              ? "No hay proveedores disponibles"
-                              : "Seleccione un proveedor"}
-                        </option>
-                        {Array.isArray(proveedores) && proveedores.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombreProveedor}
-                          </option>
-                        ))}
-                      </select>
+                      />
+                      {showProveedorSuggestions && compraForm.proveedorNombre.trim() && (
+                        <div className="list-group position-absolute w-100 shadow" style={{ zIndex: 1100, maxHeight: 220, overflowY: 'auto' }}>
+                          {proveedores
+                            .filter((p) => p.nombreProveedor?.toLowerCase().includes(compraForm.proveedorNombre.trim().toLowerCase()))
+                            .map((p) => (
+                              <button key={p.id} type="button" className="list-group-item list-group-item-action" onClick={() => handleSelectProveedor(p)}>
+                                {p.nombreProveedor}
+                              </button>
+                            ))}
+                          {proveedores.filter((p) => p.nombreProveedor?.toLowerCase().includes(compraForm.proveedorNombre.trim().toLowerCase())).length === 0 && (
+                            <div className="list-group-item text-muted">No se encontraron proveedores</div>
+                          )}
+                        </div>
+                      )}
+                      <input type="hidden" name="proveedorId" value={compraForm.proveedorId} />
                     </div>
 
 
@@ -499,22 +706,59 @@ export function Compras() {
 
                   <h6>Detalle de productos</h6>
                   <div className="row g-2 align-items-end mb-2">
-                    <div className="col-md-3">
+                    <div className="col-md-4 position-relative">
                       <label className="form-label">Producto</label>
-                      <select
-                        name="productoId"
-                        className="form-select"
-                        value={lineForm.productoId}
+                      <input
+                        type="search"
+                        name="productoNombre"
+                        className="form-control"
+                        placeholder="Escribe para buscar producto"
+                        value={lineForm.productoNombre}
                         onChange={onChangeLinea}
+                        autoComplete="off"
                         required={lineas.length === 0}
-                      >
-                        <option value="">Seleccione un producto</option>
-                        {productos.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      />
+                      {showProductSuggestions && lineForm.productoNombre.trim() && (
+                        <div className="list-group position-absolute w-100 shadow" style={{ zIndex: 1100, maxHeight: 220, overflowY: "auto" }}>
+                          {productos
+                            .filter((p) => p.nombre.toLowerCase().includes(lineForm.productoNombre.trim().toLowerCase()))
+                            .map((producto) => (
+                              <button
+                                type="button"
+                                key={producto.id}
+                                className="list-group-item list-group-item-action"
+                                onClick={() => handleSelectProducto(producto)}
+                              >
+                                {producto.nombre}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                      <input type="hidden" name="productoId" value={lineForm.productoId} />
+                      <div className="mt-2 position-relative">
+                        <label className="form-label small">Categoría</label>
+                        <input
+                          type="search"
+                          name="categoriaNombre"
+                          className="form-control form-control-sm"
+                          placeholder="Busca o escribe categoría"
+                          value={lineForm.categoriaNombre}
+                          onChange={onChangeLinea}
+                          autoComplete="off"
+                        />
+                        {showCategorySuggestions && lineForm.categoriaNombre.trim() && (
+                          <div className="list-group position-absolute w-100 shadow" style={{ zIndex: 1100, maxHeight: 200, overflowY: 'auto' }}>
+                            {categorias
+                              .filter((c) => c.nombre.toLowerCase().includes(lineForm.categoriaNombre.trim().toLowerCase()))
+                              .map((c) => (
+                                <button key={c.id} type="button" className="list-group-item list-group-item-action" onClick={() => handleSelectCategoria(c)}>
+                                  {c.nombre}
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                        <input type="hidden" name="categoriaId" value={lineForm.categoriaId} />
+                      </div>
                     </div>
                     <div className="col-md-2">
                       <label className="form-label">Cantidad</label>

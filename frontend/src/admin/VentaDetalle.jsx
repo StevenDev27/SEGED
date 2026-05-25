@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/client";
 import { useDetalleByVenta } from "../hooks/useDetalleByVenta";
 import { useProductos } from "../hooks/useProductos";
@@ -8,6 +8,7 @@ import { useClientes } from "../hooks/useClientes";
 
 export function VentaDetalle() {
   const { id } = useParams(); 
+  const navigate = useNavigate();
   const [venta, setVenta] = useState(null);
   const [loadingVenta, setLoadingVenta] = useState(true);
   const [errorVenta, setErrorVenta] = useState(null);
@@ -38,23 +39,29 @@ export function VentaDetalle() {
   const getProducto = (id) => productos.find((p) => p.id === id);
   const getCliente = (id) => clientes.find((c) => c.id === id);
 
+  const handleVolver = () => {
+    navigate('/ventas');
+  };
 
   if (loadingVenta) return <p className="text-center mt-5">Cargando venta...</p>;
   if (errorVenta) return <p className="text-danger">{errorVenta}</p>;
 
 
   const cliente = getCliente(venta.cliente_id);
-  
-
 
   return (
     <div className="container mt-4">
-      
-
-
       <div className="card shadow mb-4">
         <div className="card-header bg-primary text-white">
-          <h4 className="mb-0">Detalle de Venta #{venta.informacionVenta?.numero}</h4>
+          <div className="d-flex justify-content-between align-items-center">
+            <h4 className="mb-0">Detalle de Venta #{venta.informacionVenta?.numero}</h4>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              aria-label="Cerrar"
+              onClick={handleVolver}
+            />
+          </div>
         </div>
         <div className="card-body">
 
@@ -110,8 +117,6 @@ export function VentaDetalle() {
               </table>
             </div>
           )}
-
-
         </div>
       </div>
     </div>

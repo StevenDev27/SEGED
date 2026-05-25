@@ -13,7 +13,18 @@ export function Categoria() {
   const [submitting, setSubmitting] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const hasItems = useMemo(() => (items?.length ?? 0) > 0, [items]);
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return items;
+    return items.filter((categoria) =>
+      categoria.nombre.toLowerCase().includes(query) ||
+      categoria.descripcion.toLowerCase().includes(query)
+    );
+  }, [items, searchQuery]);
+  const hasFilteredItems = useMemo(() => (filteredItems?.length ?? 0) > 0, [filteredItems]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -154,10 +165,23 @@ export function Categoria() {
               <h5 className="mb-0">Categorías</h5>
             </div>
             <div className="card-body">
+              <div className="mb-3">
+                <label htmlFor="searchCategoria" className="form-label">Buscar Categoría</label>
+                <input
+                  id="searchCategoria"
+                  type="search"
+                  className="form-control"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Busca por nombre o descripción"
+                />
+              </div>
               {loading ? (
                 <p className="text-center m-0">Cargando...</p>
               ) : !hasItems ? (
                 <p className="text-center m-0">No hay categorías registradas</p>
+              ) : !hasFilteredItems ? (
+                <p className="text-center m-0">No se encontraron categorías que coincidan con la búsqueda</p>
               ) : (
                 <div className="table-responsive">
                   <table className="table table-striped table-hover">
@@ -170,7 +194,7 @@ export function Categoria() {
                       </tr>
                     </thead>
                     <tbody>
-                      {items.map((categoria) => (
+                      {filteredItems.map((categoria) => (
                         <tr key={categoria.id}>
                           <td>{categoria.nombre}</td>
                           <td>{categoria.descripcion}</td>

@@ -9,7 +9,6 @@ import { DashboardRoute } from './DashboardRoute'
 import { InventarioRoute } from './InventarioRoute'
 import { ProductosRoute } from './ProductosRoute'
 import { VentasRoute } from './VentasRoute'
-import { InicioRoute } from './InicioRoute'
 import { VentaDetalleRoute } from './VentaDetalleRoute'
 import { ComprasRoute } from './ComprasRoute'
 import { DetalleCompraRoute } from './DetalleCompraRoute'
@@ -24,7 +23,6 @@ export const MainRoute = () => {
       <Route path="*" element={<Login />} />
       <Route path="/ventas" element={<RequireAuth><VentasRoute /></RequireAuth>} />
       <Route path="/ventas/:id" element={<RequireAuth><VentaDetalleRoute /></RequireAuth>} />
-      <Route path="/inicio" element={<RequireAuth><InicioRoute /></RequireAuth>} />
       <Route path="/categorias" element={<RequireAuth><CategoriaRoute /></RequireAuth>} />
       <Route path="/clientes" element={<RequireAuth><ClienteRoute /></RequireAuth>} />
       <Route path="/ventas" element={<RequireAuth><VentasRoute /></RequireAuth>} />

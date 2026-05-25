@@ -17,7 +17,7 @@ export function NavBar() {
     <>
       <nav className="navbar navbar-expand-lg pt-2 navbar-dark mb-4 sticky-top">
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/inicio">
+          <Link className="navbar-brand" to="/ventas">
             Seged
           </Link>
 

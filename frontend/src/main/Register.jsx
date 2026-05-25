@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
+const logoGrande = new URL("/logoGrande.jpeg", import.meta.url).href;
+
 export function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -37,21 +39,20 @@ export function Register() {
     setLoading(true);
     try {
       await register(form.username, form.password, roles);
-      
-      // Mostrar mensaje de éxito
       setSuccess(true);
-      
-      // Redirigir al login después de 2 segundos
+
       setTimeout(() => {
-        navigate("/login", { 
+        navigate("/login", {
           replace: true,
-          state: { message: "Registro exitoso. Por favor inicia sesión." }
+          state: { message: "Registro exitoso. Por favor inicia sesión." },
         });
       }, 2000);
-      
     } catch (e) {
       console.error("Error en registro:", e);
-      const msg = e?.response?.data?.message || e?.message || "No se pudo registrar. Intenta de nuevo.";
+      const msg =
+        e?.response?.data?.message ||
+        e?.message ||
+        "No se pudo registrar. Intenta de nuevo.";
       setErr(msg);
       setLoading(false);
     }
@@ -60,95 +61,229 @@ export function Register() {
   return (
     <>
       <style>{`
-        .register-left { width: 65%; }
-        .register-right { width: 35%; }
+        .register-left {
+          width: 55%;
+        }
+
+        .register-right {
+          width: 45%;
+          min-width: 380px;
+        }
+
+        .register-page {
+          height: 100vh;
+          overflow: hidden;
+          background: linear-gradient(90deg, #0b1020 0%, #10162b 100%);
+        }
+
+        .register-input,
+        .register-input:focus {
+          background: rgba(255,255,255,0.03) !important;
+          border-color: rgba(255,255,255,0.08) !important;
+          color: #fff !important;
+          box-shadow: none !important;
+        }
+
+        .register-input::placeholder {
+          color: rgba(255,255,255,0.45);
+        }
+
+        .register-addon {
+          background: rgba(255,255,255,0.03) !important;
+          border-color: rgba(255,255,255,0.08) !important;
+          color: rgba(255,255,255,0.7) !important;
+        }
+
+        .register-card {
+          background: rgba(20, 28, 48, 0.92);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 22px;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        .register-check .form-check-input {
+          background-color: rgba(255,255,255,0.03);
+          border-color: rgba(255,255,255,0.18);
+        }
+
+        .register-check .form-check-input:checked {
+          background-color: #5b4bff;
+          border-color: #5b4bff;
+        }
+
+        .register-check .form-check-label {
+          color: rgba(255,255,255,0.82);
+        }
+
+        .register-link {
+          color: #8b5cf6;
+          text-decoration: none;
+        }
+
+        .register-link:hover {
+          color: #a78bfa;
+          text-decoration: underline;
+        }
+
         @media (max-width: 767px) {
-          .register-left { display: none; }
-          .register-right { width: 100%; }
+          .register-left {
+            display: none !important;
+          }
+
+          .register-right {
+            width: 100% !important;
+            min-width: 100% !important;
+          }
+
+          .register-page {
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+          }
         }
       `}</style>
 
-      <div className="d-flex" style={{ minHeight: '100vh' }}>
+      <div className="d-flex register-page">
+        {/* Panel izquierdo */}
         <div
-          className="register-left"
+          className="register-left d-none d-md-flex align-items-center justify-content-center position-relative"
           style={{
-            background: 'linear-gradient(135deg, rgba(0, 123, 255, 0.8) 0%, rgba(0, 0, 0, 0.7) 100%)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            position: 'relative'
+            height: "100vh",
+            overflow: "hidden",
+            background: "#0b1020",
           }}
         >
           <div
             style={{
-              position: 'absolute',
+              position: "absolute",
               inset: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              background:
+                "linear-gradient(135deg, rgba(6,8,24,0.45), rgba(59,130,246,0.05))",
+              zIndex: 1,
+              pointerEvents: "none",
             }}
-          >
-            <div className="text-white px-5" style={{ maxWidth: '600px' }}>
-              <h1 className="display-3 fw-bold mb-4">SEGED</h1>
-              <h2 className="h3 mb-4">Sistema de Gestión de ventas</h2>
-              <p className="lead mb-4">
-                La solución perfecta para microempresas que buscan optimizar
-                el control de su inventario de manera simple y eficiente.
-              </p>
-              <p className="text-white-50">
-                Gestiona tus ventas de forma profesional sin complicaciones.
-                SEGED te ayuda a tomar decisiones informadas sobre tu stock.
-              </p>
-            </div>
-          </div>
+          />
+
+          <img
+            src={logoGrande}
+            alt="Imagen lateral del registro"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              objectPosition: "center",
+              display: "block",
+              position: "relative",
+              zIndex: 0,
+            }}
+          />
         </div>
 
-        <div className="register-right d-flex align-items-center justify-content-center p-4 bg-light">
-          <div className="w-100" style={{ maxWidth: '420px' }}>
-            <div className="card shadow">
-              <div className="card-body">
-                <h2 className="text-center mb-3">Crear cuenta</h2>
+        {/* Panel derecho */}
+        <div
+          className="register-right d-flex align-items-center justify-content-center p-4"
+          style={{
+            height: "100vh",
+            overflowY: "auto",
+            background: "linear-gradient(180deg, #0b1020 0%, #10162b 100%)",
+          }}
+        >
+          <div className="w-100" style={{ maxWidth: "420px" }}>
+            <div className="card register-card border-0">
+              <div className="card-body p-4 p-lg-5">
+                <h2
+                  className="text-center mb-3 fw-bold text-white"
+                  style={{ fontSize: "2rem" }}
+                >
+                  Crear cuenta
+                </h2>
 
-                {err && <div className="alert alert-danger py-2">{err}</div>}
+                <p
+                  className="text-center mb-4"
+                  style={{ color: "rgba(255,255,255,0.6)", fontSize: "1rem" }}
+                >
+                  Registra tus datos para acceder al sistema
+                </p>
+
+                {err && (
+                  <div
+                    className="alert py-2 border-0"
+                    style={{
+                      background: "rgba(239, 68, 68, 0.12)",
+                      color: "#ff6b6b",
+                    }}
+                  >
+                    {err}
+                  </div>
+                )}
+
                 {success && (
-                  <div className="alert alert-success py-2">
+                  <div
+                    className="alert py-2 border-0"
+                    style={{
+                      background: "rgba(34, 197, 94, 0.12)",
+                      color: "#4ade80",
+                    }}
+                  >
                     ✅ Registro exitoso. Redirigiendo al login...
                   </div>
                 )}
 
                 <form onSubmit={onSubmit} noValidate>
                   <div className="mb-3">
-                    <label htmlFor="username" className="form-label">Usuario</label>
+                    <label
+                      htmlFor="username"
+                      className="form-label small fw-bold text-uppercase"
+                      style={{
+                        color: "rgba(255,255,255,0.68)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Usuario
+                    </label>
                     <input
                       id="username"
                       name="username"
-                      className="form-control"
+                      className="form-control register-input"
                       value={form.username}
                       onChange={onChange}
                       autoComplete="username"
                       disabled={loading}
                       required
+                      style={{ height: "52px" }}
+                      placeholder="Ingresa tu usuario"
                     />
                   </div>
 
                   <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Contraseña</label>
+                    <label
+                      htmlFor="password"
+                      className="form-label small fw-bold text-uppercase"
+                      style={{
+                        color: "rgba(255,255,255,0.68)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Contraseña
+                    </label>
                     <div className="input-group">
                       <input
                         type={showPass ? "text" : "password"}
                         id="password"
                         name="password"
-                        className="form-control"
+                        className="form-control register-input"
                         value={form.password}
                         onChange={onChange}
                         autoComplete="new-password"
                         disabled={loading}
                         required
+                        style={{ height: "52px" }}
+                        placeholder="Ingresa tu contraseña"
                       />
                       <button
                         type="button"
-                        className="btn btn-outline-secondary"
+                        className="btn register-addon"
                         onClick={() => setShowPass((s) => !s)}
                         tabIndex={-1}
                         disabled={loading}
@@ -159,23 +294,43 @@ export function Register() {
                   </div>
 
                   <div className="mb-3">
-                    <label htmlFor="confirm" className="form-label">Confirmar contraseña</label>
+                    <label
+                      htmlFor="confirm"
+                      className="form-label small fw-bold text-uppercase"
+                      style={{
+                        color: "rgba(255,255,255,0.68)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Confirmar contraseña
+                    </label>
                     <input
                       type={showPass ? "text" : "password"}
                       id="confirm"
                       name="confirm"
-                      className="form-control"
+                      className="form-control register-input"
                       value={form.confirm}
                       onChange={onChange}
                       autoComplete="new-password"
                       disabled={loading}
                       required
+                      style={{ height: "52px" }}
+                      placeholder="Confirma tu contraseña"
                     />
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Roles</label>
-                    <div className="form-check">
+                  <div className="mb-4">
+                    <label
+                      className="form-label small fw-bold text-uppercase"
+                      style={{
+                        color: "rgba(255,255,255,0.68)",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Roles
+                    </label>
+
+                    <div className="form-check register-check mb-2">
                       <input
                         className="form-check-input"
                         type="checkbox"
@@ -184,9 +339,12 @@ export function Register() {
                         onChange={() => toggleRole("USER")}
                         disabled={loading}
                       />
-                      <label className="form-check-label" htmlFor="role-user">USER</label>
+                      <label className="form-check-label" htmlFor="role-user">
+                        USER
+                      </label>
                     </div>
-                    <div className="form-check">
+
+                    <div className="form-check register-check mb-2">
                       <input
                         className="form-check-input"
                         type="checkbox"
@@ -195,25 +353,51 @@ export function Register() {
                         onChange={() => toggleRole("ADMIN")}
                         disabled={loading}
                       />
-                      <label className="form-check-label" htmlFor="role-admin">ADMIN</label>
+                      <label className="form-check-label" htmlFor="role-admin">
+                        ADMIN
+                      </label>
                     </div>
-                    <small className="text-muted">Selecciona al menos un rol.</small>
+
+                    <small style={{ color: "rgba(255,255,255,0.45)" }}>
+                      Selecciona al menos un rol.
+                    </small>
                   </div>
 
-                  <button type="submit" className="btn btn-dark w-100" disabled={loading || success}>
-                    {loading ? "Creando cuenta..." : success ? "✓ Cuenta creada" : "Crear cuenta"}
+                  <button
+                    type="submit"
+                    className="btn w-100 py-3 mt-2 text-white fw-semibold"
+                    disabled={loading || success}
+                    style={{
+                      border: "none",
+                      borderRadius: "14px",
+                      background: "linear-gradient(90deg, #5b4bff 0%, #8b5cf6 100%)",
+                      boxShadow: "0 10px 30px rgba(91,75,255,0.35)",
+                      fontSize: "1.05rem",
+                    }}
+                  >
+                    {loading
+                      ? "Creando cuenta..."
+                      : success
+                      ? "✓ Cuenta creada"
+                      : "Crear cuenta"}
                   </button>
                 </form>
 
                 <div className="text-center mt-3">
-                  <small>
-                    ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+                  <small style={{ color: "rgba(255,255,255,0.65)" }}>
+                    ¿Ya tienes cuenta?{" "}
+                    <Link to="/login" className="register-link">
+                      Inicia sesión
+                    </Link>
                   </small>
                 </div>
               </div>
             </div>
 
-            <p className="text-muted text-center mt-3" style={{ fontSize: 12 }}>
+            <p
+              className="text-center mt-3 mb-0"
+              style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}
+            >
               Al registrarte aceptas los términos y condiciones.
             </p>
           </div>

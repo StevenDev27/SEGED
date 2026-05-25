@@ -1,10 +1,13 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
+const logoGrande = new URL("/logoGrande.jpeg", import.meta.url).href;
+
 export function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,11 +17,13 @@ export function Login() {
     event.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
       const token = await login(username, password);
+
       if (token) {
         setTimeout(() => {
-          navigate("/inicio", { replace: true });
+          navigate("/clientes", { replace: true });
         }, 100);
       } else {
         setError("Error de autenticación");
@@ -32,85 +37,113 @@ export function Login() {
   };
 
   return (
-    <div className="d-flex fade-in" style={{ minHeight: '100vh', background: 'var(--bg-gradient)' }}>
-      {/* Área izquierda - Hero Section */}
-      <div 
-        className="d-none d-md-flex align-items-center justify-content-center flex-column p-5"
-        style={{ 
-          width: '55%',
-          position: 'relative',
-          overflow: 'hidden'
+    <div
+      className="d-flex fade-in"
+      style={{
+        height: "100vh",
+        overflow: "hidden",
+        background: "linear-gradient(90deg, #0b1020 0%, #10162b 100%)",
+      }}
+    >
+      {/* Panel izquierdo */}
+      <div
+        className="d-none d-md-flex align-items-center justify-content-center position-relative"
+        style={{
+          width: "55%",
+          height: "100vh",
+          overflow: "hidden",
+          background: "#0b1020",
         }}
       >
-        <div style={{
-          position: 'absolute',
-          top: '-20%', left: '-10%',
-          width: '500px', height: '500px',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.4) 0%, rgba(0,0,0,0) 70%)',
-          filter: 'blur(60px)',
-          zIndex: 0
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-10%', right: '-10%',
-          width: '400px', height: '400px',
-          background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, rgba(0,0,0,0) 70%)',
-          filter: 'blur(60px)',
-          zIndex: 0
-        }} />
-        
-        <div className="text-white position-relative z-1" style={{ maxWidth: '600px' }}>
-          <h1 className="display-3 fw-bold mb-4" style={{
-            background: 'linear-gradient(to right, #6366f1, #ec4899)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>SEGED</h1>
-          <h2 className="h3 mb-4 fw-light text-white">El futuro de la gestión empresarial</h2>
-          <p className="lead mb-4" style={{ color: 'var(--text-muted)' }}>
-            La solución perfecta para microempresas que buscan optimizar 
-            el control de sus ventas de manera simple, eficiente y elegante.
-          </p>
-          <div className="d-flex gap-3 mt-5">
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-check-circle-fill text-primary"></i>
-              <span>Ventas Rápidas</span>
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-check-circle-fill text-primary"></i>
-              <span>Inventario Real</span>
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-check-circle-fill text-primary"></i>
-              <span>Analíticas</span>
-            </div>
-          </div>
-        </div>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(135deg, rgba(6,8,24,0.45), rgba(59,130,246,0.05))",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        <img
+          src={logoGrande}
+          alt="Imagen lateral del login"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            objectPosition: "center",
+            display: "block",
+            position: "relative",
+            zIndex: 0,
+          }}
+        />
       </div>
 
-      {/* Área derecha - Login Form */}
-      <div className="d-flex align-items-center justify-content-center p-4" style={{ width: '100%', flex: 1, zIndex: 1 }}>
-        <div className="w-100" style={{ maxWidth: '420px' }}>
-          <div className="card shadow-lg border-0 p-4" style={{ background: 'rgba(30, 41, 59, 0.8)' }}>
-            <div className="card-body">
+      {/* Panel derecho */}
+      <div
+        className="d-flex align-items-center justify-content-center p-4"
+        style={{
+          width: "45%",
+          minWidth: "380px",
+          height: "100vh",
+          overflowY: "auto",
+          background: "linear-gradient(180deg, #0b1020 0%, #10162b 100%)",
+        }}
+      >
+        <div className="w-100" style={{ maxWidth: "420px" }}>
+          <div
+            className="card shadow-lg border-0"
+            style={{
+              background: "rgba(20, 28, 48, 0.92)",
+              borderRadius: "22px",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div className="card-body p-4 p-lg-5">
               <div className="text-center mb-5">
-                <div className="d-inline-flex align-items-center justify-content-center mb-3" style={{
-                  width: '64px', height: '64px', borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2))',
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }}>
-                  <i className="bi bi-person-circle fs-1 text-primary"></i>
-                </div>
-                <h3 className="fw-bold mb-1">Bienvenido de nuevo</h3>
-                <p className="text-muted">Ingresa tus credenciales para continuar</p>
+                <h3
+                  className="fw-bold mb-2 text-white"
+                  style={{ fontSize: "2rem" }}
+                >
+                  Bienvenido de nuevo
+                </h3>
+                <p
+                  className="mb-0"
+                  style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.05rem" }}
+                >
+                  Ingresa tus credenciales para continuar
+                </p>
               </div>
 
               <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4">
-                  <label htmlFor="username" className="form-label text-muted small fw-bold text-uppercase">Usuario</label>
+                  <label
+                    htmlFor="username"
+                    className="form-label small fw-bold text-uppercase"
+                    style={{
+                      color: "rgba(255,255,255,0.68)",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    Usuario
+                  </label>
+
                   <div className="input-group">
-                    <span className="input-group-text bg-transparent border-end-0" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
+                    <span
+                      className="input-group-text bg-transparent border-end-0"
+                      style={{
+                        borderColor: "rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.55)",
+                        background: "rgba(255,255,255,0.03)",
+                      }}
+                    >
                       <i className="bi bi-person"></i>
                     </span>
+
                     <input
                       type="text"
                       className="form-control border-start-0 ps-0"
@@ -121,17 +154,41 @@ export function Login() {
                       autoComplete="username"
                       required
                       disabled={loading}
-                      style={{ boxShadow: 'none' }}
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        borderColor: "rgba(255,255,255,0.08)",
+                        color: "#fff",
+                        boxShadow: "none",
+                        height: "52px",
+                      }}
                     />
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="password" className="form-label text-muted small fw-bold text-uppercase">Contraseña</label>
+                  <label
+                    htmlFor="password"
+                    className="form-label small fw-bold text-uppercase"
+                    style={{
+                      color: "rgba(255,255,255,0.68)",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    Contraseña
+                  </label>
+
                   <div className="input-group">
-                    <span className="input-group-text bg-transparent border-end-0" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
+                    <span
+                      className="input-group-text bg-transparent border-end-0"
+                      style={{
+                        borderColor: "rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.55)",
+                        background: "rgba(255,255,255,0.03)",
+                      }}
+                    >
                       <i className="bi bi-lock"></i>
                     </span>
+
                     <input
                       type="password"
                       className="form-control border-start-0 ps-0"
@@ -142,21 +199,55 @@ export function Login() {
                       autoComplete="current-password"
                       required
                       disabled={loading}
-                      style={{ boxShadow: 'none' }}
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        borderColor: "rgba(255,255,255,0.08)",
+                        color: "#fff",
+                        boxShadow: "none",
+                        height: "52px",
+                      }}
                     />
                   </div>
                 </div>
 
                 {error && (
-                  <div className="alert alert-danger py-2 border-0" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }} role="alert">
-                    <i className="bi bi-exclamation-circle me-2"></i>{error}
+                  <div
+                    className="alert alert-danger py-2 border-0"
+                    style={{
+                      background: "rgba(239, 68, 68, 0.12)",
+                      color: "#ff6b6b",
+                    }}
+                    role="alert"
+                  >
+                    <i className="bi bi-exclamation-circle me-2"></i>
+                    {error}
                   </div>
                 )}
 
-                <button type="submit" className="btn btn-primary w-100 py-2 mt-2" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn w-100 py-3 mt-2 text-white fw-semibold"
+                  disabled={loading}
+                  style={{
+                    border: "none",
+                    borderRadius: "14px",
+                    background: "linear-gradient(90deg, #5b4bff 0%, #8b5cf6 100%)",
+                    boxShadow: "0 10px 30px rgba(91,75,255,0.35)",
+                    fontSize: "1.05rem",
+                  }}
+                >
                   {loading ? (
-                    <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Ingresando...</>
-                  ) : "Iniciar Sesión"}
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Ingresando...
+                    </>
+                  ) : (
+                    "Iniciar Sesión"
+                  )}
                 </button>
               </form>
             </div>
@@ -166,4 +257,3 @@ export function Login() {
     </div>
   );
 }
-
