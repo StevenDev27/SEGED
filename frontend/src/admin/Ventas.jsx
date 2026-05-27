@@ -605,9 +605,13 @@ export function Ventas() {
                         value={ventaForm.metodoPago}
                         onChange={onChangeVenta}
                       >
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                        <option value="Transferencia">Transferencia</option>
+                        <option value="EFECTIVO">EFECTIVO</option>
+                        <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                        <option value="DAVIplata">DAVIplata</option>
+                        <option value="NEQUI">NEQUI</option>
+                        <option value="TARJETA_CREDITO">TARJETA_CREDITO</option>
+                        <option value="TARJETA_DEBITO">TARJETA_DEBITO</option>
+
                       </select>
                     </div>
                   </div>

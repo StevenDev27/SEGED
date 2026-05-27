@@ -101,17 +101,22 @@ export const Dashboard = () => {
           justify-content: space-between;
           gap: 1rem;
           min-height: 260px;
+          height: 260px;
           padding: 1rem 0.25rem 0 0.25rem;
         }
 
         .neon-bar {
           position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
           flex: 1;
           min-width: 0;
+          height: 100%;
           margin: 0 0.15rem;
           border-radius: 18px 18px 4px 4px;
-          background: linear-gradient(180deg, rgba(59, 130, 246, 0.95), rgba(56, 189, 248, 0.4));
-          box-shadow: 0 0 24px rgba(59, 130, 246, 0.35);
+          background: rgba(148, 163, 184, 0.08);
+          overflow: hidden;
           transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
@@ -125,8 +130,24 @@ export const Dashboard = () => {
           position: absolute;
           inset: 0;
           border-radius: inherit;
-          box-shadow: 0 0 32px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 0 32px rgba(59, 130, 246, 0.18);
           opacity: 0.7;
+          pointer-events: none;
+        }
+
+        .neon-bar-fill {
+          width: 100%;
+          border-radius: inherit;
+          background: linear-gradient(180deg, rgba(59, 130, 246, 0.95), rgba(56, 189, 248, 0.4));
+          box-shadow: inset 0 0 24px rgba(59, 130, 246, 0.25);
+          transition: height 0.35s ease;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 0.75rem;
+          position: relative;
+          z-index: 1;
+          min-height: 8%;
         }
 
         .neon-bar-label {
@@ -134,16 +155,16 @@ export const Dashboard = () => {
           text-align: center;
           color: #c7d2fe;
           font-size: 0.92rem;
+          z-index: 1;
         }
 
         .neon-value {
-          position: absolute;
-          top: -1.4rem;
-          left: 50%;
-          transform: translateX(-50%);
+          position: relative;
+          margin-bottom: 0.25rem;
           font-size: 0.9rem;
-          color: #e0f2fe;
-          text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+          color: #f8fafc;
+          text-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+          z-index: 2;
         }
 
         .neon-grid {
@@ -209,12 +230,17 @@ export const Dashboard = () => {
               </div>
             ) : (
               <div className="neon-graph">
-                {ventasPorMes.map((item) => (
-                  <div key={item.mes} style={{ height: `${(item.valor / maxValor) * 100}%` }} className="neon-bar">
-                    <span className="neon-value">${Math.round(item.valor).toLocaleString('es-CO')}</span>
-                    <div className="neon-bar-label">{item.mes}</div>
-                  </div>
-                ))}
+                {ventasPorMes.map((item) => {
+                  const fillHeight = Math.max(8, (item.valor / maxValor) * 100);
+                  return (
+                    <div key={item.mes} className="neon-bar">
+                      <div className="neon-bar-fill" style={{ height: `${fillHeight}%` }}>
+                        <span className="neon-value">${Math.round(item.valor).toLocaleString('es-CO')}</span>
+                      </div>
+                      <div className="neon-bar-label">{item.mes}</div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
